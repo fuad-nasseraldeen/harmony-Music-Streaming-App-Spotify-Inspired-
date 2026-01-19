@@ -16,6 +16,7 @@ export interface Database {
           avatar_url: string | null;
           billing_address: Json | null;
           payment_method: Json | null;
+          is_subscribed: boolean;
         };
         Insert: {
           id: string;
@@ -23,6 +24,7 @@ export interface Database {
           avatar_url?: string | null;
           billing_address?: Json | null;
           payment_method?: Json | null;
+          is_subscribed?: boolean;
         };
         Update: {
           id?: string;
@@ -30,6 +32,7 @@ export interface Database {
           avatar_url?: string | null;
           billing_address?: Json | null;
           payment_method?: Json | null;
+          is_subscribed?: boolean;
         };
       };
       songs: {

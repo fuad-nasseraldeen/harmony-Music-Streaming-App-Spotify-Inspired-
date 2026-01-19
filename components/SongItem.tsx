@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePlayerStore } from '@/store/usePlayerStore';
 import { useUser } from '@/hooks/useUser';
+import { useSubscription } from '@/hooks/useSubscription';
 import { graphqlRequest, mutations } from '@/lib/graphql';
 import { BsPlayFill, BsPauseFill } from 'react-icons/bs';
 import { HiHeart, HiOutlineHeart } from 'react-icons/hi';
@@ -17,12 +19,29 @@ interface SongItemProps {
 }
 
 const SongItem = ({ song, onClick, showLike = true }: SongItemProps) => {
+  const router = useRouter();
   const { user } = useUser();
+  const { isSubscribed, loading: subscriptionLoading } = useSubscription();
   const { activeSong, isPlaying, setActiveSong, setIsPlaying } = usePlayerStore();
   const [isLiked, setIsLiked] = useState(false);
   const isActive = activeSong?.id === song.id;
 
   const handleClick = () => {
+    // Check subscription before playing
+    if (subscriptionLoading) {
+      toast('Checking subscription…', { duration: 1500 });
+      return;
+    }
+
+    if (!isSubscribed) {
+      toast.error('You must subscribe to enjoy playing music', {
+        duration: 4000,
+        icon: '🔒',
+      });
+      router.push('/subscription');
+      return;
+    }
+
     if (isActive) {
       setIsPlaying(!isPlaying);
     } else {
@@ -49,8 +68,9 @@ const SongItem = ({ song, onClick, showLike = true }: SongItemProps) => {
         setIsLiked(true);
         toast.success('Added to liked songs');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update like');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to update like';
+      toast.error(message);
     }
   };
 

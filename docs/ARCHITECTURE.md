@@ -54,6 +54,17 @@ Technical architecture and data flow for Harmony music streaming platform.
 3. **Play audio** → HTML5 `<audio>` element uses presigned URL
 4. **Image display** → `S3Image` component fetches presigned URL for cover
 
+### Premium / Subscription Flow (Stripe)
+
+1. User opens `/subscription`
+2. App creates (or ensures) a Stripe product/price via `POST /api/create-product-price`
+3. App creates a checkout session via `POST /api/create-checkout-session` and redirects to Stripe Checkout
+4. After payment:
+   - Webhook (`POST /api/webhooks/stripe`) syncs `subscriptions` table and `users.is_subscribed`
+   - Fallback: `POST /api/checkout-success` can save subscription immediately after redirect
+
+Server note: subscription sync uses the Supabase service role key to bypass RLS.
+
 ### Authentication Flow
 
 1. **Sign up/Login** → Supabase Auth (`/auth` page)
@@ -70,6 +81,7 @@ Technical architecture and data flow for Harmony music streaming platform.
 - **`components/Player.tsx`** - Music player with controls
 - **`components/S3Image.tsx`** - Image component with presigned URLs
 - **`store/usePlayerStore.ts`** - Global player state (Zustand)
+- **`store/useSubscriptionStore.ts`** - Global subscription state (Zustand, cached)
 
 ### Backend (API Routes)
 
@@ -84,7 +96,8 @@ Technical architecture and data flow for Harmony music streaming platform.
 - **`songs`** - Song metadata (title, author, S3 paths)
 - **`liked_songs`** - User likes (junction table)
 - **`users`** - User profiles
-- **`subscriptions`** - Stripe subscriptions (future)
+- **`subscriptions`** - Stripe subscription mirror (synced from Stripe)
+- **`users.is_subscribed`** - Fast boolean flag used by the UI
 
 ### Storage (AWS S3)
 
@@ -97,7 +110,8 @@ Technical architecture and data flow for Harmony music streaming platform.
 ### Client-Side State
 
 - **Zustand** (`usePlayerStore`) - Player state (active song, playing, volume)
-- **React Context** (`useUser`) - User authentication state
+- **Zustand** (`useSubscriptionStore`) - Subscription state (cached for the whole session)
+- **React Hook** (`useUser`) - User authentication state
 - **React State** - Component-local state (forms, UI)
 
 ### Server-Side State

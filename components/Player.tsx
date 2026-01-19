@@ -1,13 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePlayerStore } from '@/store/usePlayerStore';
+import { useSubscription } from '@/hooks/useSubscription';
 import { BsPauseFill, BsPlayFill } from 'react-icons/bs';
 import { HiSpeakerWave, HiSpeakerXMark } from 'react-icons/hi2';
 import { AiFillStepBackward, AiFillStepForward } from 'react-icons/ai';
+import toast from 'react-hot-toast';
 import S3Image from './S3Image';
 
 const Player = () => {
+  const router = useRouter();
+  const { isSubscribed, loading: subscriptionLoading } = useSubscription();
   const { 
     activeSong, 
     isPlaying, 
@@ -69,13 +74,19 @@ const Player = () => {
       // Update audio source when presigned URL is ready
       audioRef.current.src = presignedUrl;
       
-      if (isPlaying) {
-        audioRef.current.play();
+      // Only play if subscribed
+      if (isPlaying && isSubscribed) {
+        audioRef.current.play().catch((error) => {
+          console.error('Error playing audio:', error);
+        });
       } else {
         audioRef.current.pause();
+        if (isPlaying && !isSubscribed) {
+          setIsPlaying(false);
+        }
       }
     }
-  }, [isPlaying, presignedUrl]);
+  }, [isPlaying, presignedUrl, isSubscribed, setIsPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -98,6 +109,21 @@ const Player = () => {
   }, [activeSong, setIsPlaying, onPlayNext]);
 
   const handlePlay = () => {
+    // Check subscription before playing
+    if (subscriptionLoading) {
+      toast('Checking subscription…', { duration: 1500 });
+      return;
+    }
+
+    if (!isSubscribed) {
+      toast.error('You must subscribe to enjoy playing music', {
+        duration: 4000,
+        icon: '🔒',
+      });
+      router.push('/subscription');
+      return;
+    }
+
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
@@ -166,12 +192,29 @@ const Player = () => {
             />
             <div
               onClick={handlePlay}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white p-1 cursor-pointer hover:scale-110 transition"
+              className={`flex items-center justify-center w-10 h-10 rounded-full p-1 transition ${
+                isSubscribed && !subscriptionLoading
+                  ? 'bg-white cursor-pointer hover:scale-110'
+                  : 'bg-neutral-600 cursor-not-allowed opacity-50'
+              }`}
+              title={
+                subscriptionLoading
+                  ? 'Checking subscription…'
+                  : !isSubscribed
+                    ? 'You must subscribe to enjoy playing music'
+                    : ''
+              }
             >
               {isPlaying ? (
-                <BsPauseFill size={30} className="text-black" />
+                <BsPauseFill
+                  size={30}
+                  className={isSubscribed && !subscriptionLoading ? 'text-black' : 'text-white'}
+                />
               ) : (
-                <BsPlayFill size={30} className="text-black pl-1" />
+                <BsPlayFill
+                  size={30}
+                  className={`pl-1 ${isSubscribed && !subscriptionLoading ? 'text-black' : 'text-white'}`}
+                />
               )}
             </div>
             <AiFillStepForward

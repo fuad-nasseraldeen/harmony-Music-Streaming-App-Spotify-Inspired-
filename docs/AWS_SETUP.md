@@ -100,6 +100,10 @@ CORS is required for browser-based uploads.
 4. Replace `https://yourdomain.com` with your production domain
 5. Click **Save changes**
 
+Notes:
+- For direct uploads, the browser will send a preflight request (OPTIONS). The S3 CORS config must allow the origin and headers.
+- Keep the bucket private. Do not add a public bucket policy for playback; Harmony uses presigned GET URLs.
+
 ## Step 6: Test Upload
 
 1. Start your dev server: `npm run dev`

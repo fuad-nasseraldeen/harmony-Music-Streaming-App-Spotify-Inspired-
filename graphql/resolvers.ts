@@ -189,7 +189,18 @@ export const resolvers = {
         .single();
 
       if (error) throw new Error(error.message);
-      return data;
+      
+      // Map snake_case to camelCase
+      if (data) {
+        const userData = data as any;
+        return {
+          id: userData.id,
+          fullName: userData.full_name,
+          avatarUrl: userData.avatar_url,
+          isSubscribed: userData.is_subscribed ?? false,
+        };
+      }
+      return null;
     },
   },
 

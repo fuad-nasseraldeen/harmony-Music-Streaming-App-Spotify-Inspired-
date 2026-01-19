@@ -9,6 +9,7 @@ Step-by-step guide for deploying Harmony to production.
 - [ ] S3 bucket created and configured
 - [ ] CORS updated for production domain
 - [ ] Stripe keys switched to production (if using payments)
+- [ ] Stripe webhook configured for `/api/webhooks/stripe`
 - [ ] Build passes locally (`npm run build`)
 
 ## Deployment Platforms
@@ -45,11 +46,15 @@ Vercel is optimized for Next.js apps.
    ```
    NEXT_PUBLIC_SUPABASE_URL=your_production_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
    AWS_ACCESS_KEY_ID=your_aws_key
    AWS_SECRET_ACCESS_KEY=your_aws_secret
    AWS_REGION=your_region
    S3_BUCKET_NAME=your_bucket_name
    NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+   STRIPE_SECRET_KEY=sk_live_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
    ```
 
 5. **Redeploy**
@@ -163,7 +168,20 @@ NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 ```env
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 ```
+
+## Stripe webhooks (required for production)
+
+- Add a webhook endpoint in Stripe Dashboard pointing to:
+  - `https://yourdomain.com/api/webhooks/stripe`
+- Configure these events:
+  - `checkout.session.completed`
+  - `customer.subscription.updated`
+  - `customer.subscription.deleted`
+- Copy the webhook signing secret into `STRIPE_WEBHOOK_SECRET`.
+
+Server note: webhook sync requires `SUPABASE_SERVICE_ROLE_KEY` to write into `subscriptions` and update `users.is_subscribed` (RLS blocks writes from anon key).
 
 ## Troubleshooting
 

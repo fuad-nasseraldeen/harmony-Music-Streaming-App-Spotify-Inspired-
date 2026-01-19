@@ -35,12 +35,18 @@ harmony/
 - `library/page.tsx` - User's uploaded songs
 - `liked/page.tsx` - Liked songs page
 - `search/page.tsx` - Search songs page
+- `subscription/page.tsx` - Premium subscription page (Stripe checkout + portal)
 - `layout.tsx` - Root layout (Sidebar + Player)
 
 **API Routes:**
 - `api/graphql/route.ts` - GraphQL endpoint
 - `api/upload/presigned-url/route.ts` - Generate S3 upload URLs
 - `api/s3/presign-play/route.ts` - Generate S3 playback URLs
+- `api/webhooks/stripe/route.ts` - Stripe webhook handler
+- `api/create-checkout-session/route.ts` - Stripe Checkout session
+- `api/create-portal-session/route.ts` - Stripe customer portal session
+- `api/checkout-success/route.ts` - Save subscription right after checkout redirect
+- `api/sync-subscription/route.ts` - Manual subscription sync
 - `api/upload/route.ts` - Legacy upload route (deprecated)
 
 ### `/components` - React Components
@@ -67,10 +73,12 @@ harmony/
 ### `/hooks` - Custom Hooks
 
 - `useUser.ts` - User authentication state hook
+- `useSubscription.ts` - Subscription status hook (wraps the subscription store)
 
 ### `/store` - State Management
 
 - `usePlayerStore.ts` - Zustand store for player state
+- `useSubscriptionStore.ts` - Zustand store for subscription status (cached)
 
 ### `/types` - Type Definitions
 

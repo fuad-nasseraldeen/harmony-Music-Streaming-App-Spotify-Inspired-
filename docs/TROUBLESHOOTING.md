@@ -76,13 +76,14 @@ Common issues and solutions for Harmony music streaming platform.
 
 ### Songs won't play
 
-**Cause**: Presigned URL generation fails or expires.
+**Cause**: Presigned URL generation fails, expires, or the user is not subscribed.
 
 **Solution**:
 1. Check browser console for errors
 2. Verify `/api/s3/presign-play` endpoint works
 3. Check IAM user has `s3:GetObject` permission
 4. Try refreshing the page (presigned URLs expire after 5 min)
+5. Verify the user is Premium (go to `/subscription`)
 
 ### Audio player controls not working
 
@@ -121,6 +122,16 @@ Common issues and solutions for Harmony music streaming platform.
 - Check RLS is enabled but policies allow public read for songs
 - Verify user is authenticated for protected queries
 - Check Supabase logs for specific policy violations
+
+### Stripe subscription saves but user is not recognized as subscribed
+
+**Cause**: subscription sync couldn't write into `subscriptions` / `users` due to missing service role key, webhook not configured, or webhook delay.
+
+**Solution**:
+- Ensure `SUPABASE_SERVICE_ROLE_KEY` is set (server-only)
+- Ensure Stripe webhooks are configured for `/api/webhooks/stripe` and `STRIPE_WEBHOOK_SECRET` is set
+- Use `POST /api/checkout-success` after redirect (app calls it automatically)
+- Use `POST /api/sync-subscription` as a manual fallback
 
 ### Query returns empty array
 

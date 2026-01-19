@@ -18,7 +18,7 @@ Harmony is a full-stack music streaming platform built with modern web technolog
 - **GraphQL** - API layer (Apollo Server on Next.js)
 - **Supabase** - PostgreSQL database, Authentication
 - **AWS S3** - File storage (songs & images)
-- **Stripe** - Payment processing (configured, optional)
+- **Stripe** - Subscription billing (Checkout + Portal + Webhooks)
 
 ## Key Features
 
@@ -43,6 +43,7 @@ Harmony is a full-stack music streaming platform built with modern web technolog
    - Presigned URLs expire after 5 minutes
    - HTTP-only cookies for auth
    - Row-level security in database
+   - Server-side subscription sync uses Supabase service role key
 
 ## Architecture Highlights
 
@@ -136,7 +137,6 @@ harmony/
 
 ## Future Enhancements
 
-- Stripe subscription integration
 - Playlists functionality
 - User profiles and avatars
 - Advanced search filters

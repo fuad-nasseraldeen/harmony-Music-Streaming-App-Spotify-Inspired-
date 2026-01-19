@@ -9,9 +9,12 @@ import {
   HiLibrary, 
   HiPlus,
   HiHeart,
-  HiLogout
+  HiLogout,
+  HiStar
 } from 'react-icons/hi';
 import { usePlayerStore } from '@/store/usePlayerStore';
+import { graphqlRequest } from '@/lib/graphql';
+import { useEffect, useState } from 'react';
 
 const Sidebar = () => {
   const router = useRouter();
@@ -19,6 +22,27 @@ const Sidebar = () => {
   const { user } = useUser();
   const supabase = createClient();
   const { reset } = usePlayerStore();
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    const checkPremium = async () => {
+      if (!user) {
+        setIsPremium(false);
+        return;
+      }
+
+      try {
+        const data = await graphqlRequest<{ subscription: { status: string } | null }>(
+          `query { subscription { status } }`
+        );
+        setIsPremium(data.subscription?.status === 'active' || data.subscription?.status === 'trialing');
+      } catch (error) {
+        setIsPremium(false);
+      }
+    };
+
+    checkPremium();
+  }, [user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -59,6 +83,12 @@ const Sidebar = () => {
       label: 'Liked Songs',
       active: pathname === '/liked',
       href: '/liked',
+    },
+    {
+      icon: HiStar,
+      label: isPremium ? 'Premium ✓' : 'Premium',
+      active: pathname === '/subscription',
+      href: '/subscription',
     },
   ];
 

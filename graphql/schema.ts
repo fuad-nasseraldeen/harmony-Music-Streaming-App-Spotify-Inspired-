@@ -57,6 +57,7 @@ export const typeDefs = `#graphql
     id: ID!
     fullName: String
     avatarUrl: String
+    isSubscribed: Boolean
   }
 
   type Query {

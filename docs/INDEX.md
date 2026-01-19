@@ -7,7 +7,7 @@ Complete documentation guide for Harmony music streaming platform.
 ### Getting Started
 - **[README.md](../README.md)** - Main documentation, overview, setup instructions
 - **[QUICK_START.md](./QUICK_START.md)** - Get running in 10 minutes
-- **[PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)** - Complete file structure and organization
+- **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Complete file structure and organization
 
 ### Setup Guides
 - **[AWS_SETUP.md](./AWS_SETUP.md)** - Step-by-step S3 and IAM configuration
@@ -26,7 +26,7 @@ Complete documentation guide for Harmony music streaming platform.
 ### For New Developers
 1. Start with **[README.md](../README.md)**
 2. Follow **[QUICK_START.md](./QUICK_START.md)** to get running
-3. Read **[PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)** to understand the codebase
+3. Read **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** to understand the codebase
 
 ### For Setup
 1. **[AWS_SETUP.md](./AWS_SETUP.md)** - Configure S3 storage
@@ -36,7 +36,7 @@ Complete documentation guide for Harmony music streaming platform.
 ### For Development
 1. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Understand system design
 2. **[API.md](./API.md)** - GraphQL API reference
-3. **[PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)** - Where to add new features
+3. **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Where to add new features
 
 ### For Troubleshooting
 1. **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues
@@ -71,7 +71,7 @@ harmony/
 
 ### Understanding the Code
 1. Read **[ARCHITECTURE.md](./ARCHITECTURE.md)**
-2. Check **[PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)**
+2. Check **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)**
 3. Review **[API.md](./API.md)** for GraphQL queries
 
 ### Deploying to Production
@@ -112,7 +112,7 @@ harmony/
 - **Set up the project** → **[QUICK_START.md](./QUICK_START.md)**
 - **Understand the code** → **[ARCHITECTURE.md](./ARCHITECTURE.md)**
 - **Use the API** → **[API.md](./API.md)**
-- **Add a feature** → **[PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)**
+- **Add a feature** → **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)**
 - **Fix an error** → **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
 - **Deploy to production** → **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 

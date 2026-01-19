@@ -5,11 +5,59 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
 import { graphqlRequest, queries } from '@/lib/graphql';
 import { usePlayerStore } from '@/store/usePlayerStore';
+import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 import SongItem from '@/components/SongItem';
+import toast from 'react-hot-toast';
 import type { Song } from '@/store/usePlayerStore';
 
 export default function Home() {
   const router = useRouter();
+  const setOptimisticSubscribed = useSubscriptionStore((s) => s.setOptimisticSubscribed);
+  
+  // Check for subscription success
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const sessionId = urlParams.get('session_id');
+
+    if (success === 'subscription' && sessionId) {
+      // Save subscription to database immediately
+      const saveSubscription = async () => {
+        try {
+          const response = await fetch('/api/checkout-success', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            toast.success('Subscription saved! Welcome to Premium!');
+            // Optimistically unlock playback immediately (real refresh runs in background).
+            setOptimisticSubscribed(true);
+            // Trigger subscription refresh event
+            window.dispatchEvent(new Event('subscription-refresh'));
+            // Remove query params
+            window.history.replaceState({}, '', '/');
+            // Wait a bit for subscription to refresh, then redirect
+            setTimeout(() => {
+              router.push('/subscription');
+            }, 1500);
+          } else {
+            console.error('Save subscription error:', data);
+            throw new Error(data.error || data.details || 'Failed to save subscription');
+          }
+        } catch (error: unknown) {
+          const message = error instanceof Error ? error.message : 'Unknown error';
+          console.error('Error saving subscription:', error);
+          toast.error(`Failed to save: ${message}. Check console for details.`);
+        }
+      };
+
+      saveSubscription();
+    }
+  }, [router, setOptimisticSubscribed]);
   const { user, loading } = useUser();
   const { songs, setSongs } = usePlayerStore();
 

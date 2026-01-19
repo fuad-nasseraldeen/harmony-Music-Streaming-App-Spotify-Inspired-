@@ -144,6 +144,22 @@ query GetUser {
     id
     fullName
     avatarUrl
+    isSubscribed
+  }
+}
+```
+
+### `subscription`
+
+Get the current user's subscription record (requires auth). Returns `null` when not subscribed.
+
+**Request:**
+```graphql
+query GetSubscription {
+  subscription {
+    id
+    status
+    currentPeriodEnd
   }
 }
 ```
@@ -285,6 +301,32 @@ Generate presigned URL for playback (songs or images).
 }
 ```
 
+### Stripe endpoints
+
+These endpoints are used by `/subscription` and checkout success handling.
+
+#### `POST /api/create-checkout-session`
+
+Creates a Stripe Checkout session for the Premium subscription.
+
+#### `POST /api/create-portal-session`
+
+Creates a Stripe Customer Portal session.
+
+#### `POST /api/webhooks/stripe`
+
+Stripe webhook handler (events like `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`).
+
+Important: this runs on the server and must use `SUPABASE_SERVICE_ROLE_KEY` to bypass RLS when syncing `subscriptions` and `users.is_subscribed`.
+
+#### `POST /api/checkout-success`
+
+Called after redirect from Stripe Checkout to immediately save subscription state (fallback when webhooks are delayed).
+
+#### `POST /api/sync-subscription`
+
+Manual sync endpoint (fallback/debug).
+
 ## Error Responses
 
 All errors follow GraphQL error format:
@@ -332,6 +374,7 @@ type User {
   id: ID!
   fullName: String
   avatarUrl: String
+  isSubscribed: Boolean
 }
 ```
 
