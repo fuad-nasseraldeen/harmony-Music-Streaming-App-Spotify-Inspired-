@@ -1,3 +1,15 @@
+## Why this project exists
+
+Harmony is a production-style music streaming app built to explore
+real-world constraints around media delivery, subscriptions, and access control.
+
+Key decisions:
+- Media is never streamed through the app server (S3 presigned URLs only)
+- Subscriptions are server-authoritative (Stripe webhooks → DB)
+- GraphQL is used where it improves data composition, REST where it doesn’t
+- All access is enforced at the database level via RLS
+
+
 # Harmony
 
 A full-stack music streaming app built with Next.js (App Router), Supabase, GraphQL, AWS S3, and Stripe.
@@ -20,6 +32,14 @@ Harmony lets users upload songs + cover art, stream from a private S3 bucket usi
 - **GraphQL** (Apollo Server on `/api/graphql`)
 - **AWS S3** (private media storage)
 - **Stripe** (subscriptions + webhooks)
+
+## Trade-offs & limitations
+
+- Presigned URLs are short-lived and require refresh logic
+- Optimistic subscription unlock requires reconciliation via webhooks
+- No audio transcoding or bitrate adaptation (out of scope)
+- Search is DB-based, not Elastic (acceptable for current scale)
+
 
 ## Getting started
 
