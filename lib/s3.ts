@@ -5,11 +5,20 @@ export const BUCKET_NAME = process.env.S3_BUCKET_NAME || 'spotify-harmoney-music
 
 // Get S3 client with correct region
 function getS3Client(region?: string): S3Client {
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error(
+      'AWS credentials not configured. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your environment variables.'
+    );
+  }
+
   return new S3Client({
     region: region || process.env.AWS_REGION || 'us-east-1',
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId,
+      secretAccessKey,
     },
     // Use virtual-hosted style (recommended)
     forcePathStyle: false,
@@ -19,6 +28,11 @@ function getS3Client(region?: string): S3Client {
 // Get bucket region automatically
 async function getBucketRegion(): Promise<string> {
   const defaultRegion = process.env.AWS_REGION || 'us-east-1';
+  
+  // During build, credentials might not be available - just return default
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    return defaultRegion;
+  }
   
   try {
     const client = getS3Client(defaultRegion);
@@ -146,6 +160,11 @@ export async function getPresignedUploadUrl(
   contentType: string,
   expiresIn: number = 3600 // 1 hour default
 ): Promise<string> {
+  // Check credentials before proceeding
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    throw new Error('AWS credentials not configured');
+  }
+  
   const region = process.env.AWS_REGION || await getBucketRegion();
   const client = getS3Client(region);
 
@@ -166,6 +185,11 @@ export async function getPresignedReadUrl(
   s3Key: string,
   expiresIn: number = 3600 // 1 hour default
 ): Promise<string> {
+  // Check credentials before proceeding
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    throw new Error('AWS credentials not configured');
+  }
+  
   const region = process.env.AWS_REGION || await getBucketRegion();
   const client = getS3Client(region);
 
